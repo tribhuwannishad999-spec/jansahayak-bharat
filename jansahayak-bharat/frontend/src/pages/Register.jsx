@@ -3,34 +3,42 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 
 export default function Register() {
-
   const { register } = useAuth();
 
-  const [email,setEmail]=useState("");
-  const [password,setPassword]=useState("");
-  const [error,setError]=useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-  const navigate=useNavigate();
+  const navigate = useNavigate();
 
-  const submit=async(e)=>{
-
+  const submit = async (e) => {
     e.preventDefault();
 
     setError("");
 
-    try{
+    try {
+      const userCredential = await register(email, password);
 
-      const userCredential=await register(email,password);
+      console.log("User Registered:", userCredential.user);
 
-      console.log(userCredential.user);
+      alert("रजिस्ट्रेशन सफल हुआ ✅");
 
       navigate("/");
 
-    }catch(err){
+    } catch (err) {
 
       console.error(err);
+      console.log("Error Code:", err.code);
+      console.log("Error Message:", err.message);
 
-      switch(err.code){
+      alert(
+        "Firebase Error:\n\n" +
+        err.code +
+        "\n\n" +
+        err.message
+      );
+
+      switch (err.code) {
 
         case "auth/email-already-in-use":
           setError("यह ईमेल पहले से मौजूद है");
@@ -40,24 +48,37 @@ export default function Register() {
           setError("पासवर्ड कम से कम 6 अक्षर का होना चाहिए");
           break;
 
+        case "auth/invalid-email":
+          setError("ईमेल सही नहीं है");
+          break;
+
+        case "auth/network-request-failed":
+          setError("इंटरनेट कनेक्शन जांचें");
+          break;
+
+        case "auth/operation-not-allowed":
+          setError("Firebase में Email/Password Login Enable नहीं है");
+          break;
+
+        case "auth/invalid-api-key":
+          setError("Firebase API Key गलत है");
+          break;
+
         default:
           setError("रजिस्ट्रेशन विफल");
       }
-
     }
-
   };
 
   return (
-
     <div className="max-w-sm mx-auto mt-16 bg-white p-6 rounded-2xl shadow border border-gray-100">
 
       <h2 className="text-2xl font-bold text-center mb-6">
-        नया अकाउंट बनाएं
+        नया खाता बनाएं
       </h2>
 
       {error && (
-        <div className="bg-red-100 text-red-600 p-2 rounded mb-4 text-sm">
+        <div className="bg-red-100 text-red-600 p-3 rounded-lg mb-4 text-sm">
           {error}
         </div>
       )}
@@ -69,7 +90,7 @@ export default function Register() {
           required
           placeholder="ईमेल"
           value={email}
-          onChange={(e)=>setEmail(e.target.value)}
+          onChange={(e) => setEmail(e.target.value)}
           className="w-full border rounded-lg px-3 py-2"
         />
 
@@ -77,13 +98,14 @@ export default function Register() {
           type="password"
           required
           minLength={6}
-          placeholder="पासवर्ड"
+          placeholder="पासवर्ड (कम से कम 6 अक्षर)"
           value={password}
-          onChange={(e)=>setPassword(e.target.value)}
+          onChange={(e) => setPassword(e.target.value)}
           className="w-full border rounded-lg px-3 py-2"
         />
 
         <button
+          type="submit"
           className="w-full bg-green-600 text-white py-2 rounded-lg font-bold"
         >
           रजिस्टर करें
@@ -92,7 +114,7 @@ export default function Register() {
       </form>
 
       <p className="text-center mt-5">
-        पहले से अकाउंट है?
+        पहले से खाता है?
         <Link
           to="/login"
           className="text-orange-600 font-bold ml-1"
@@ -102,7 +124,5 @@ export default function Register() {
       </p>
 
     </div>
-
   );
-
 }
