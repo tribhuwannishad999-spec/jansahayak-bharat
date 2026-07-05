@@ -3,114 +3,154 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 
 export default function Login() {
-  const { login, loginWithGoogle } = useAuth();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const { login, loginWithGoogle } = useAuth();
 
   const navigate = useNavigate();
 
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
+
   const submit = async (e) => {
+
     e.preventDefault();
+
+    setLoading(true);
     setError("");
+    setSuccess("");
 
     try {
-      const userCredential = await login(email, password);
 
-      console.log(userCredential.user);
+      await login(email, password);
 
-      navigate("/");
-    } catch (err) {
-      console.error(err);
+      setSuccess("✅ लॉगिन सफल");
 
-      switch (err.code) {
-        case "auth/user-not-found":
-          setError("यूज़र नहीं मिला");
-          break;
+      setTimeout(() => {
 
-        case "auth/wrong-password":
-          setError("गलत पासवर्ड");
-          break;
+        navigate("/");
 
-        case "auth/invalid-credential":
-          setError("ईमेल या पासवर्ड गलत है");
-          break;
+      },1500);
 
-        default:
-          setError("लॉगिन विफल। पुनः प्रयास करें।");
-      }
+    } catch(err){
+
+      setError("❌ गलत ईमेल या पासवर्ड");
+
+    } finally{
+
+      setLoading(false);
+
     }
-  };
 
-  const googleLogin = async () => {
-    try {
-      await loginWithGoogle();
-      navigate("/");
-    } catch (err) {
-      console.error(err);
-      setError("Google लॉगिन विफल");
-    }
   };
 
   return (
-    <div className="max-w-sm mx-auto mt-16 bg-white p-6 rounded-2xl shadow border border-gray-100">
 
-      <h2 className="text-2xl font-bold text-center mb-6">
-        लॉगिन करें
-      </h2>
+<div className="max-w-sm mx-auto mt-16 bg-white p-6 rounded-2xl shadow-xl">
 
-      {error && (
-        <div className="bg-red-100 text-red-600 p-2 rounded mb-4 text-sm">
-          {error}
-        </div>
-      )}
+<h2 className="text-2xl font-bold text-center mb-5">
 
-      <form onSubmit={submit} className="space-y-4">
+लॉगिन करें
 
-        <input
-          type="email"
-          placeholder="ईमेल"
-          required
-          value={email}
-          onChange={(e)=>setEmail(e.target.value)}
-          className="w-full border rounded-lg px-3 py-2"
-        />
+</h2>
 
-        <input
-          type="password"
-          placeholder="पासवर्ड"
-          required
-          value={password}
-          onChange={(e)=>setPassword(e.target.value)}
-          className="w-full border rounded-lg px-3 py-2"
-        />
+{success && (
 
-        <button
-          className="w-full bg-orange-500 text-white py-2 rounded-lg font-bold"
-        >
-          लॉगिन
-        </button>
+<div className="bg-green-100 border border-green-500 text-green-700 rounded-lg p-3 mb-4">
 
-      </form>
+{success}
 
-      <button
-        onClick={googleLogin}
-        className="w-full mt-4 border py-2 rounded-lg font-bold"
-      >
-        Google से लॉगिन करें
-      </button>
+</div>
 
-      <p className="text-center mt-5">
-        नया यूज़र?
-        <Link
-          to="/register"
-          className="text-orange-600 font-bold ml-1"
-        >
-          रजिस्टर करें
-        </Link>
-      </p>
+)}
 
-    </div>
+{error && (
+
+<div className="bg-red-100 border border-red-500 text-red-700 rounded-lg p-3 mb-4">
+
+{error}
+
+</div>
+
+)}
+
+<form onSubmit={submit} className="space-y-4">
+
+<input
+
+type="email"
+
+placeholder="ईमेल"
+
+required
+
+value={email}
+
+onChange={(e)=>setEmail(e.target.value)}
+
+className="w-full border rounded-lg p-3"
+
+/>
+
+<input
+
+type="password"
+
+placeholder="पासवर्ड"
+
+required
+
+value={password}
+
+onChange={(e)=>setPassword(e.target.value)}
+
+className="w-full border rounded-lg p-3"
+
+/>
+
+<button
+
+disabled={loading}
+
+className="w-full bg-orange-600 text-white rounded-lg p-3 font-bold"
+
+>
+
+{loading ? "लॉगिन हो रहा है..." : "लॉगिन"}
+
+</button>
+
+</form>
+
+<button
+
+onClick={loginWithGoogle}
+
+className="w-full mt-4 border rounded-lg p-3"
+
+>
+
+Google से लॉगिन
+
+</button>
+
+<p className="text-center mt-5">
+
+खाता नहीं है?
+
+<Link to="/register" className="text-orange-600 font-bold ml-2">
+
+रजिस्टर करें
+
+</Link>
+
+</p>
+
+</div>
+
   );
+
 }
