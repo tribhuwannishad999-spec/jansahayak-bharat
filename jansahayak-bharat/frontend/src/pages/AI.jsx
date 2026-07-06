@@ -7,77 +7,49 @@ export default function AI() {
   const [loading, setLoading] = useState(false);
 
   const askAI = async () => {
-    if (!question.trim()) return;
+    if (!question) return;
 
     setLoading(true);
 
     try {
-      const { data } = await apiClient.post("/ai/chat", {
-        message: question,
+      const { data } = await apiClient.post("/ai/ask", {
+        question,
       });
 
-      setAnswer(data.reply);
+      setAnswer(data.answer);
     } catch (err) {
-      setAnswer("❌ AI से उत्तर प्राप्त नहीं हुआ।");
+      setAnswer("AI उत्तर उपलब्ध नहीं है।");
     }
 
     setLoading(false);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-green-50 p-4">
+    <div className="max-w-3xl mx-auto p-5">
+      <h1 className="text-3xl font-bold mb-6">
+        🇮🇳 जनसहायक AI
+      </h1>
 
-      <div className="max-w-3xl mx-auto">
+      <textarea
+        className="w-full border rounded-xl p-4"
+        rows="5"
+        value={question}
+        onChange={(e)=>setQuestion(e.target.value)}
+        placeholder="अपना प्रश्न लिखें..."
+      />
 
-        <div className="bg-gradient-to-r from-orange-500 to-green-600 rounded-3xl text-white p-6 shadow-xl">
+      <button
+        onClick={askAI}
+        className="mt-4 bg-orange-500 text-white px-6 py-3 rounded-xl"
+      >
+        {loading ? "सोच रहा है..." : "पूछें"}
+      </button>
 
-          <h1 className="text-3xl font-bold">
-            🤖 जनसहायक AI
-          </h1>
-
-          <p className="mt-2 opacity-90">
-            सरकारी योजनाएँ, नौकरी, खेती, कानून, स्वास्थ्य और अन्य जानकारी पूछें।
-          </p>
-
+      {answer && (
+        <div className="mt-6 bg-white rounded-xl shadow p-5">
+          {answer}
         </div>
-
-        <div className="bg-white mt-6 rounded-3xl shadow-xl p-5">
-
-          <textarea
-            rows="5"
-            value={question}
-            onChange={(e)=>setQuestion(e.target.value)}
-            placeholder="अपना प्रश्न यहाँ लिखें..."
-            className="w-full border rounded-2xl p-4 outline-none"
-          />
-
-          <button
-            onClick={askAI}
-            className="mt-4 w-full bg-gradient-to-r from-orange-500 to-green-600 text-white rounded-2xl py-3 font-bold"
-          >
-            {loading ? "उत्तर तैयार हो रहा है..." : "AI से पूछें"}
-          </button>
-
-        </div>
-
-        {answer && (
-
-          <div className="bg-white mt-6 rounded-3xl shadow-xl p-5">
-
-            <h2 className="font-bold text-lg mb-3">
-              🤖 उत्तर
-            </h2>
-
-            <p className="leading-8 whitespace-pre-wrap">
-              {answer}
-            </p>
-
-          </div>
-
-        )}
-
-      </div>
-
+      )}
     </div>
   );
 }
