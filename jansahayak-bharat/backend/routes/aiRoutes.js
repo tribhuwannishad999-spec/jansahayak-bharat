@@ -11,7 +11,7 @@ function getModel() {
     throw new Error("GEMINI_API_KEY सेट नहीं है");
   }
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  return genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  return genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 }
 
 const SYSTEM_CONTEXT = `आप "जनसहायक भारत" के AI सहायक हैं। आप भारत के ग्रामीण नागरिकों को सरल हिंदी में
